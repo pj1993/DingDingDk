@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -53,16 +54,15 @@ public class DKservice extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         wakeUpAndUnlock(this);//解锁
-        //打开钉钉
-        startDingDingDkActivity();
-        //
-        SystemClock.sleep(4000);
         //滑动屏幕防止解锁失败
         huadong("300","1000","360","500");
-        SystemClock.sleep(1000);
+        SystemClock.sleep(5000);
+        //打开钉钉
+        startDingDingDkActivity();
+        SystemClock.sleep(5000);
 //        //点击中间菜单
         pointXY("360","1230");//0.5,  0.97
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 //        //将打卡功能上划出来
         huadong("360","1100","160","600");
         SystemClock.sleep(2000);
@@ -77,7 +77,15 @@ public class DKservice extends IntentService {
         //退出钉钉
         SystemClock.sleep(10000);
         stopDingDingDkActivity(DD_PACKAGENAME);
-
+        //关闭通道
+        try {
+            if(os!=null){
+                os.close();
+            }
+            os=null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -95,20 +103,23 @@ public class DKservice extends IntentService {
      * @param context
      */
     public static void wakeUpAndUnlock(Context context) {
-        Log.e("eee","打开锁屏！");
-        KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        KeyguardManager.KeyguardLock kl = km.newKeyguardLock("unLock");
-        //解锁
-        kl.disableKeyguard();
-        //获取电源管理器对象
+        // 获取电源管理器对象
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        //获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK, "bright");
-        //点亮屏幕
-        wl.acquire();
-        //释放
-        wl.release();
-        Log.e("eee","打开锁屏完成！");
+        boolean screenOn = pm.isScreenOn();
+        if (!screenOn) {
+            // 获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
+            PowerManager.WakeLock wl = pm.newWakeLock(
+                    PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                            PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "bright");
+            wl.acquire(10000); // 点亮屏幕
+            wl.release(); // 释放
+        }
+        // 屏幕解锁
+        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
+        KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("unLock");
+        // 屏幕锁定
+        keyguardLock.reenableKeyguard();
+        keyguardLock.disableKeyguard(); // 解锁
     }
 
 
