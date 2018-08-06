@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Created by pj on 2018/7/6.
- * 刺..刺.刺激
+ * 刺..刺.刺激1
  * 打卡的操作
  */
 public class DKservice extends IntentService {
