@@ -53,9 +53,9 @@ public class DKservice extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        wakeUpAndUnlock(this);//解锁
+        wakeUpAndUnlock(getApplicationContext());//解锁
         //滑动屏幕防止解锁失败
-        huadong("300","1000","360","500");
+//        huadong("300","1000","360","500");
         SystemClock.sleep(5000);
         //打开钉钉
         startDingDingDkActivity();
@@ -66,7 +66,7 @@ public class DKservice extends IntentService {
 //        //将打卡功能上划出来
         huadong("360","1100","160","600");
         SystemClock.sleep(2000);
-        pointXY("102","784");//1/8,  y-(y*0.2529+50)
+        pointXY("102","984");//1/8,  y-(y*0.2529+50)
         SystemClock.sleep(10000);
 
         //打上班卡
@@ -86,6 +86,8 @@ public class DKservice extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //本方法完后会自动调用stopSelf();
+        onDestroy();//手动销毁service
     }
 
 

@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
                 exec("input tap 200 200 \n");//获取root权限
             }
         });
+
+
     }
     private OutputStream os;
     /**
