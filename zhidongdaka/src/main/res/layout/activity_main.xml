@@ -17,4 +17,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+
+    <TextView
+        android:layout_marginTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置点击考勤打卡按钮位置(当钉钉功能菜单界面更新时，请重新设置以下xy)" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="x轴位置"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/et_x"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="y轴位置"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/et_y"
+            android:layout_width="102dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+
 </LinearLayout>

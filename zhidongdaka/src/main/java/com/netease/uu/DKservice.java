@@ -3,8 +3,13 @@ package com.netease.uu;
 import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -15,6 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import static com.netease.uu.MainActivity.SPNAME;
+
 /**
  * Created by pj on 2018/7/6.
  * 刺..刺.刺激1
@@ -23,6 +30,8 @@ import java.util.List;
 public class DKservice extends IntentService {
     private OutputStream os;
     private static final String DD_PACKAGENAME="com.alibaba.android.rimet";
+    private static final String DD_ACTIVITY_DK="com.alibaba.lightapp.runtime.activity.CommonWebViewActivity";
+    public static final String sreanBitmap=Environment.getExternalStorageDirectory()+"/DDZDDK_screan.png";
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -38,7 +47,6 @@ public class DKservice extends IntentService {
         int heigth = dm.heightPixels;
         int width = dm.widthPixels;
         super.onCreate();
-
     }
 
     @Override
@@ -60,13 +68,23 @@ public class DKservice extends IntentService {
         //打开钉钉
         startDingDingDkActivity();
         SystemClock.sleep(5000);
+
+//        startDkActivity();
+
 //        //点击中间菜单
         pointXY("360","1230");//0.5,  0.97
-        SystemClock.sleep(3000);
+        SystemClock.sleep(5000);
 //        //将打卡功能上划出来
         huadong("360","1100","160","600");
         SystemClock.sleep(2000);
-        pointXY("102","984");//1/8,  y-(y*0.2529+50)
+        //1截屏  2.等分24份  3文字识别《考勤打卡》  4计算位置  5，执行下面代码
+//        pointXY("102","984");//1/8,  y-(y*0.2529+50)
+        //点击考勤打卡功能按钮
+        SharedPreferences sp = getSharedPreferences(SPNAME, MODE_PRIVATE);
+        String x=sp.getString("clickX","102");
+        String y=sp.getString("clickY","844");
+        pointXY(x,y);//1/8,  y-(y*0.2529+50)
+
         SystemClock.sleep(10000);
 
         //打上班卡
@@ -90,15 +108,32 @@ public class DKservice extends IntentService {
         onDestroy();//手动销毁service
     }
 
+    /**
+     * 图片识别
+     */
+    public void identifyImg(){
+        Bitmap bitmap= BitmapFactory.decodeFile(sreanBitmap);
+        //灰度处理
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        for(int i=0;i<6;i++){
+            for(int j=0;j<4;j++){
+                Bitmap img = Bitmap.createBitmap(bitmap, width / 4 * j, height / 6 * i, width / 4, height / 6);
+            }
+        }
+    }
+
 
     /**
-     * 打开钉钉打卡界面
+     * 打开钉钉打卡
      */
     public void startDingDingDkActivity(){
         Intent intent = this.getPackageManager().getLaunchIntentForPackage(DD_PACKAGENAME);
 //        Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.pj.dingdingdk");
         startActivity(intent);
     }
+
+
 
     /**
      * 解锁
@@ -131,7 +166,13 @@ public class DKservice extends IntentService {
         String cmd = "am force-stop " + packageName + " \n";
         exec(cmd);
     }
-
+    /**
+     * 跳转到打卡界面(他并不就是一个activity，无法再钉钉上使用)
+     */
+    public void startDkActivity(){
+        String cmd=String.format("am start -n %s/%s \n",DD_PACKAGENAME,DD_ACTIVITY_DK);
+        exec(cmd);
+    }
     /**
      * 滑动屏幕
      * @param x1
@@ -143,7 +184,6 @@ public class DKservice extends IntentService {
         String cmd=String.format("input swipe %s %s %s %s \n",x1,y1,x2,y2);
         exec(cmd);
     }
-
     /**
      * 点击
      * @param x
@@ -153,7 +193,12 @@ public class DKservice extends IntentService {
         String cmd=String.format("input tap %s %s \n",x,y);
         exec(cmd);
     }
-
+    /**
+     * 截屏
+     */
+    public void capScrean(){
+        exec("screencap -p "+sreanBitmap+" \n");
+    }
     /**
      * 执行ADB命令： input tap 125 340
      */
