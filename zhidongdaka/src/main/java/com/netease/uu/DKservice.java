@@ -1,11 +1,8 @@
 package com.netease.uu;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,12 +12,10 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -56,9 +51,6 @@ public class DKservice extends IntentService {
 
     @Override
     public void onCreate() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int heigth = dm.heightPixels;
-        int width = dm.widthPixels;
         super.onCreate();
     }
 
@@ -144,14 +136,13 @@ public class DKservice extends IntentService {
         // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
         int screenWidth = (int) (width / density);  // 屏幕宽度(dp)
         int screenHeight = (int) (height / density);// 屏幕高度(dp)
-        int a[]={width,height};
-        return a;
+        return new int[]{width,height};
     }
 
 
     /**
      * 解锁
-     * @param context
+     * @param context 上下文环境
      */
     public static void wakeUpAndUnlock(Context context) {
         // 获取电源管理器对象
@@ -192,10 +183,10 @@ public class DKservice extends IntentService {
     }
     /**
      * 滑动屏幕
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
+     * @param x1    起点x轴坐标 单位px
+     * @param y1    起点y轴坐标 单位px
+     * @param x2    终点x轴坐标 单位px
+     * @param y2    终点y轴坐标 单位px
      */
     public void huadong(String x1,String y1,String x2,String y2){
         String cmd=String.format("input swipe %s %s %s %s \n",x1,y1,x2,y2);
@@ -203,8 +194,8 @@ public class DKservice extends IntentService {
     }
     /**
      * 点击屏幕坐标
-     * @param x
-     * @param y
+     * @param x     横坐标 单位px
+     * @param y     纵坐标 单位px
      */
     public void pointXY(String x,String y){
         String cmd=String.format("input tap %s %s \n",x,y);
@@ -248,10 +239,7 @@ public class DKservice extends IntentService {
      */
     private boolean isCurrentAppIsTarget() {
         String name = getForegroundAppPackageName();
-        if (name!=null&&!"".equals(name) && "".equalsIgnoreCase(name)) {
-            return true;
-        }
-        return false;
+        return name != null && !"".equals(name) && "".equalsIgnoreCase(name);
     }
     /**
      * 获取前台程序包名，该方法仅在android L之前有效

@@ -1,5 +1,6 @@
 package com.netease.uu;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,18 +8,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText et_time;
     public static final String SPNAME="time_later";
     private SharedPreferences sp;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 exec("input tap 500 500 \n");//获取root权限
             }
         });
-        et_time = (EditText) findViewById(R.id.et_time);
+        EditText et_time = (EditText) findViewById(R.id.et_time);
         sp = getSharedPreferences(SPNAME, MODE_PRIVATE);
         int time = sp.getInt("time", 15);
         et_time.setText(time+"");
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public class MyTextWatcher implements TextWatcher{
         private int res;
-        public MyTextWatcher(int res) {
+        MyTextWatcher(int res) {
             this.res = res;
         }
         @Override
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor edit = sp.edit();
                     int time = Integer.parseInt(s.toString().trim());
                     edit.putInt("time",time);
-                    edit.commit();
+                    edit.apply();
                     break;
             }
         }
