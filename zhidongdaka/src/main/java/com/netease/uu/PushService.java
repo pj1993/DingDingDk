@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 /**
  * Created by pj on 2018/7/20.
@@ -33,6 +34,7 @@ public class PushService extends Service {
         filter.addAction("com.lenovo.deskclock.ALARM_ALERT");
         filter.addAction("com.oppo.alarmclock.alarmclock.ALARM_ALERT");
         filter.addAction("com.zdworks.android.zdclock.ACTION_ALARM_ALERT");
+        Toast.makeText(this, "服务已开启，请允许获得root权限！", Toast.LENGTH_SHORT).show();
         registerReceiver(new DKReceiver(),filter);
     }
 

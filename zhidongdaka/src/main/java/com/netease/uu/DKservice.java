@@ -1,23 +1,29 @@
 package com.netease.uu;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.List;
 
 import static com.netease.uu.MainActivity.SPNAME;
@@ -31,6 +37,13 @@ public class DKservice extends IntentService {
     private OutputStream os;
     private static final String DD_PACKAGENAME="com.alibaba.android.rimet";
     private static final String DD_ACTIVITY_DK="com.alibaba.lightapp.runtime.activity.CommonWebViewActivity";
+    // 钉钉打卡页面的 scheme
+    public static final String  SCHEME_DING_DING = "dingtalk://dingtalkclient/page/link?url=" +
+            URLEncoder.encode("https://attend.dingtalk.com/attend/index.html");
+    // 支付宝付款码的 scheme
+    public static final String SCHEME_ALIPAY_PAY = "alipays://platformapi/startapp?appId=20000056";
+    // 支付宝扫一扫 scheme
+    public static final String SCHEME_ALIPAY_SCAN = "alipays://platformapi/startapp?saId=10000007";
     public static final String sreanBitmap=Environment.getExternalStorageDirectory()+"/DDZDDK_screan.png";
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -65,36 +78,29 @@ public class DKservice extends IntentService {
         //滑动屏幕防止解锁失败
 //        huadong("300","1000","360","500");
         SystemClock.sleep(5000);
-        //打开钉钉
-        startDingDingDkActivity();
-        SystemClock.sleep(5000);
-
-//        startDkActivity();
-
-//        //点击中间菜单
-        pointXY("360","1230");//0.5,  0.97
-        SystemClock.sleep(5000);
-//        //将打卡功能上划出来
-        huadong("360","1100","160","600");
-        SystemClock.sleep(2000);
-        //1截屏  2.等分24份  3文字识别《考勤打卡》  4计算位置  5，执行下面代码
-//        pointXY("102","984");//1/8,  y-(y*0.2529+50)
-        //点击考勤打卡功能按钮
+//        //打开钉钉打卡界面
+        startDkActivity();
+        //获取延时时间
         SharedPreferences sp = getSharedPreferences(SPNAME, MODE_PRIVATE);
-        String x=sp.getString("clickX","102");
-        String y=sp.getString("clickY","844");
-        pointXY(x,y);//1/8,  y-(y*0.2529+50)
+        int time = sp.getInt("time", 15);
+        SystemClock.sleep(time*1000);
 
-        SystemClock.sleep(10000);
-
+        int[] screenWidthAndHeight = getScreenWidthAndHeight();
         //打上班卡
-        pointXY("360","550");
+        pointXY(screenWidthAndHeight[0]/2+"",screenWidthAndHeight[1]/8*3+"");
         SystemClock.sleep(2000);
         //打下班卡
-        pointXY("360","724");//0.5,  y-(y*0.2529+50)
+        pointXY(screenWidthAndHeight[0]/2+"",screenWidthAndHeight[1]/8*5+"");//0.5,  y-(y*0.2529+50)
         //退出钉钉
         SystemClock.sleep(10000);
         stopDingDingDkActivity(DD_PACKAGENAME);
+//        stopDingDingDkActivity("com.android.alarmclock");
+//        stopDingDingDkActivity("com.netease.uu");
+        SystemClock.sleep(2000);
+        //模拟按电源键电源键
+        pointKeyCode(3);//返回home
+        SystemClock.sleep(1000);
+        pointKeyCode(26);//电源键
         //关闭通道
         try {
             if(os!=null){
@@ -123,16 +129,24 @@ public class DKservice extends IntentService {
         }
     }
 
-
     /**
-     * 打开钉钉打卡
+     * 获取屏幕宽高px
+     * @return a[0]:屏幕宽  a[1]:屏幕高
      */
-    public void startDingDingDkActivity(){
-        Intent intent = this.getPackageManager().getLaunchIntentForPackage(DD_PACKAGENAME);
-//        Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.pj.dingdingdk");
-        startActivity(intent);
+    public int[] getScreenWidthAndHeight(){
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;         // 屏幕宽度（像素）
+        int height = dm.heightPixels;       // 屏幕高度（像素）
+        float density = dm.density;         // 屏幕密度（0.75 / 1.0 / 1.5）
+        int densityDpi = dm.densityDpi;     // 屏幕密度dpi（120 / 160 / 240）
+        // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
+        int screenWidth = (int) (width / density);  // 屏幕宽度(dp)
+        int screenHeight = (int) (height / density);// 屏幕高度(dp)
+        int a[]={width,height};
+        return a;
     }
-
 
 
     /**
@@ -148,7 +162,7 @@ public class DKservice extends IntentService {
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.ACQUIRE_CAUSES_WAKEUP |
                             PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "bright");
-            wl.acquire(10000); // 点亮屏幕
+            wl.acquire(100); // 点亮屏幕
             wl.release(); // 释放
         }
         // 屏幕解锁
@@ -167,11 +181,14 @@ public class DKservice extends IntentService {
         exec(cmd);
     }
     /**
-     * 跳转到打卡界面(他并不就是一个activity，无法再钉钉上使用)
+     * 跳转到打卡界面
      */
     public void startDkActivity(){
-        String cmd=String.format("am start -n %s/%s \n",DD_PACKAGENAME,DD_ACTIVITY_DK);
-        exec(cmd);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(SCHEME_DING_DING));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+//        String cmd=String.format("am start -n %s/%s \n",DD_PACKAGENAME,DD_ACTIVITY_DK);
+//        exec(cmd);
     }
     /**
      * 滑动屏幕
@@ -185,12 +202,20 @@ public class DKservice extends IntentService {
         exec(cmd);
     }
     /**
-     * 点击
+     * 点击屏幕坐标
      * @param x
      * @param y
      */
     public void pointXY(String x,String y){
         String cmd=String.format("input tap %s %s \n",x,y);
+        exec(cmd);
+    }
+
+    /**
+     * 模拟按键 比如 电源键。。。
+     */
+    public void pointKeyCode(int code){
+        String cmd=String.format("input keyevent %s \n",code);
         exec(cmd);
     }
     /**

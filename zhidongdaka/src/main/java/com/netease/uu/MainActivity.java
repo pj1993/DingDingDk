@@ -15,16 +15,15 @@ import android.widget.Toast;
 import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText et_x;
-    private EditText et_y;
-    public static final String SPNAME="location";
+    private EditText et_time;
+    public static final String SPNAME="time_later";
     private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startService(new Intent(this,PushService.class));
+//        startService(new Intent(this,PushService.class));
         findViewById(R.id.bt_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -32,15 +31,11 @@ public class MainActivity extends AppCompatActivity {
                 exec("input tap 500 500 \n");//获取root权限
             }
         });
-        et_x = (EditText) findViewById(R.id.et_x);
-        et_y = (EditText) findViewById(R.id.et_y);
+        et_time = (EditText) findViewById(R.id.et_time);
         sp = getSharedPreferences(SPNAME, MODE_PRIVATE);
-        String clickX = sp.getString("clickX", "102");
-        String clickY= sp.getString("clickY","844");
-        et_x.setText(clickX);
-        et_y.setText(clickY);
-        et_x.addTextChangedListener(new MyTextWatcher(R.id.et_x));
-        et_y.addTextChangedListener(new MyTextWatcher(R.id.et_y));
+        int time = sp.getInt("time", 15);
+        et_time.setText(time+"");
+        et_time.addTextChangedListener(new MyTextWatcher(R.id.et_time));
     }
 
 
@@ -63,11 +58,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Toast.makeText(this, "您当前点击的是:x"+event.getX()+",y"+event.getY(), Toast.LENGTH_SHORT).show();
-        return super.onTouchEvent(event);
-    }
 
     public class MyTextWatcher implements TextWatcher{
         private int res;
@@ -82,18 +72,14 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         public void afterTextChanged(Editable s) {
-            String key="";
             switch (res) {
-                case R.id.et_x:
-                    key="clickX";
-                    break;
-                case R.id.et_y:
-                    key="clickY";
+                case R.id.et_time:
+                    SharedPreferences.Editor edit = sp.edit();
+                    int time = Integer.parseInt(s.toString().trim());
+                    edit.putInt("time",time);
+                    edit.commit();
                     break;
             }
-            SharedPreferences.Editor edit = sp.edit();
-            edit.putString(key,s.toString().trim());
-            edit.commit();
         }
     }
 }

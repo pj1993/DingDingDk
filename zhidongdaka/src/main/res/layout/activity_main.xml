@@ -7,41 +7,46 @@
     android:orientation="vertical"
     tools:context="com.netease.uu.MainActivity">
 
-    <Button
-        android:id="@+id/bt_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="启动服务，开启您的免打卡之旅"  />
+
     <TextView
-        android:text="请关掉您的锁屏，设置多个打卡闹钟！"
+        android:layout_marginTop="10dp"
+        android:textColor="#e30303"
+        android:text=" 请关掉您的锁屏，设置多个打卡闹钟！"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/bt_start"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" 获取root权限 "  />
 
     <TextView
         android:layout_marginTop="50dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="设置点击考勤打卡按钮位置(当钉钉功能菜单界面更新时，请重新设置以下xy)" />
+        android:text="  设置打开打卡界面，白屏到加载完成的时间。(需要延长1-2秒，确保加载彻底完成！默认12秒)" />
     <LinearLayout
         android:orientation="horizontal"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:text="x轴位置"
+            android:text="  延时"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <EditText
-            android:id="@+id/et_x"
+            android:id="@+id/et_time"
+            android:inputType="number"
+            android:gravity="center"
+            android:text="@string/time_later"
             android:layout_width="100dp"
             android:layout_height="wrap_content" />
         <TextView
-            android:text="y轴位置"
+            android:text="秒"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/et_y"
-            android:layout_width="102dp"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
