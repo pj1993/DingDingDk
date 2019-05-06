@@ -1,5 +1,6 @@
 package com.netease.uu;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
@@ -16,6 +17,9 @@ import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
+
+import com.netease.uu.utils.Utils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -66,6 +70,10 @@ public class DKservice extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        //延时1-3分钟，以免被发现了
+        int random = Utils.getRandom(1, 3);
+        Log.e("time","随机延时:"+random+"分钟");
+        SystemClock.sleep(random*1000*60);
         wakeUpAndUnlock(getApplicationContext());//解锁
         //滑动屏幕防止解锁失败
 //        huadong("300","1000","360","500");
@@ -150,7 +158,7 @@ public class DKservice extends IntentService {
         boolean screenOn = pm.isScreenOn();
         if (!screenOn) {
             // 获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
-            PowerManager.WakeLock wl = pm.newWakeLock(
+            @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.ACQUIRE_CAUSES_WAKEUP |
                             PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "bright");
             wl.acquire(100); // 点亮屏幕

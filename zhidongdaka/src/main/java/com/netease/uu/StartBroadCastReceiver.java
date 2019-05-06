@@ -12,6 +12,7 @@ import android.content.Intent;
 public class StartBroadCastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        //启动常驻服务，监听闹钟
         context.startService(new Intent(context,PushService.class));
     }
 }

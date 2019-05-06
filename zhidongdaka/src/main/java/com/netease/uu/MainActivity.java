@@ -10,12 +10,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-
+import android.widget.TextView;
 import java.io.OutputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String SPNAME="time_later";
     private SharedPreferences sp;
+    private TextView bt_start_time;
+    private TextView bt_end_time;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -23,13 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        startService(new Intent(this,PushService.class));
-        findViewById(R.id.bt_start).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startService(new Intent(MainActivity.this,PushService.class));
-                exec("input tap 500 500 \n");//获取root权限
-            }
-        });
+        findViewById(R.id.bt_start).setOnClickListener(this);
         EditText et_time = (EditText) findViewById(R.id.et_time);
         sp = getSharedPreferences(SPNAME, MODE_PRIVATE);
         int time = sp.getInt("time", 15);
@@ -41,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private OutputStream os;
     /**
      * 执行ADB命令： input tap 125 340
+     * 用于获取root权限
      */
     public final void exec(String cmd) {
         Log.e("eee",cmd);
@@ -54,6 +51,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("GK", e.getMessage());
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt_start:
+                //获取root权限
+                startService(new Intent(MainActivity.this,PushService.class));
+                exec("input tap 500 500 \n");//获取root权限
+                break;
         }
     }
 
